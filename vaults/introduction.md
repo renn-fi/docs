@@ -7,35 +7,11 @@ icon: vault
 
 A vault is a **pool of capital** that funds loans automatically based on rules its manager sets at creation. Depositors put in the base asset; in return they get **vault tokens**, which represent their share of whatever the vault holds — base asset balance, loan tokens, defaulted positions, and AMM share.
 
-## What vaults add
+## Vaults add three things
 
-{% columns %}
-{% column %}
-### Automation
-
-Lenders don't have to evaluate every loan request manually. The vault matches loans to its rules and allocates capital on its own.
-{% endcolumn %}
-
-{% column %}
-### Management and risk control
-
-The manager runs the book, monitors exposure, and decides when to pause funding or trigger recovery on defaulted loans. Depositors get that work done for them.
-{% endcolumn %}
-{% endcolumns %}
-
-{% columns %}
-{% column %}
-### Liquidity
-
-Vault tokens trade on the AMM and redeem through inflow matching, giving the loan market a fast exit layer that individual loan tokens don't have on their own.
-{% endcolumn %}
-
-{% column %}
-### Composability
-
-Each vault token is itself a transferable asset. The vault token AMM (see [AMM liquidity](amm-liquidity.md)) provides a continuous secondary market without forcing the underlying loans to trade.
-{% endcolumn %}
-{% endcolumns %}
+* **Automation.** Lenders don't have to evaluate every loan request manually. The vault matches loans to its rules and allocates capital on its own.
+* **Management and risk control.** The manager runs the book, monitors exposure, and decides when to pause funding or trigger recovery on defaulted loans (see [How loans end](../loans/how-loans-end.md)). Depositors get that work done for them.
+* **Liquidity.** Vault tokens trade on the AMM and redeem through inflow matching, giving the loan market a fast exit layer that individual loan tokens don't have on their own.
 
 ## Where to next
 

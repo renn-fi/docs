@@ -24,7 +24,3 @@ This commits the borrower up front and stops anyone from posting fake or unfunde
 * **If the loan activates** (funding reaches the minimum threshold), collateral stays locked until the loan resolves — either through repayment, or through one of the recovery paths described in [How loans end](how-loans-end.md).
 * **If the loan does not activate**, collateral is unlocked and returned.
 * **If the borrower withdraws collateral before activation**, the loan request closes and any lenders who had already staked funds get them back.
-
-## Restaking
-
-If a vault funds the loan, the vault's rules can permit restaking the locked collateral into other yield-generating protocols (e.g. Aave). The restaking policy and allowed venues are set in the [vault rules](../vaults/vault-rules.md) at vault creation and cannot change afterward.

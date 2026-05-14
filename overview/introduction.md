@@ -41,31 +41,3 @@ A borrower can either open a new loan, or **refinance an existing position** fro
 * DEX-based collateral sale on default.
 
 Coupon loans, maturity rollover, structured leverage, a native token, and additional collateral assets are planned for later. See the [Roadmap](../roadmap/mvp-scope.md).
-
-## How the pieces fit together
-
-{% stepper %}
-{% step %}
-### Borrower creates a loan order
-
-The borrower posts collateral and defines the loan terms, or refinances an existing position from another protocol like Aave.
-{% endstep %}
-
-{% step %}
-### Lenders provide capital
-
-Lenders fund directly from the marketplace, or deposit into a vault that allocates capital under its rules. Vault depositors receive vault tokens (e.g. `rnVault`) representing their share.
-{% endstep %}
-
-{% step %}
-### The vault fulfils the loan
-
-Once the vault has sufficient funds matching the loan's parameters, it fulfils the order on the Renn Debt Marketplace. A portion of vault capital can be seeded into the Renn DEX as AMM liquidity for vault tokens.
-{% endstep %}
-
-{% step %}
-### Lenders exit when ready
-
-Direct lenders hold to maturity or sell on OTC. Vault depositors can sell `rnVault` on the AMM, redeem in-kind, or wait for vault maturity.
-{% endstep %}
-{% endstepper %}

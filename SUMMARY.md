@@ -9,7 +9,6 @@
 
 ## Loans
 
-* [Loan lifecycle](loans/loan-lifecycle.md)
 * [Loan creation](loans/loan-creation.md)
 * [Collateral](loans/collateral.md)
 * [Funding](loans/funding.md)
