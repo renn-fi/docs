@@ -29,8 +29,8 @@ This documentation reflects the **v1 protocol specification**. Features explicit
 
 Coupon loans, maturity rollover, structured leverage, a native token, and additional collateral assets are planned for later. See the [Roadmap](roadmap/mvp-scope.md) and [Open Items](roadmap/open-items.md).
 
-## Download the whitepaper
+## Download the spec
 
-{% file src=".gitbook/assets/renn-finance-whitepaper-v1.pdf" %}
+{% file src=".gitbook/assets/renn-finance-spec-v1.pdf" %}
 Renn Finance: Protocol Design Specification, v1
 {% endfile %}
