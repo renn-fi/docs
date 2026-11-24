@@ -1,45 +1,27 @@
 ---
-description: Each loan position is a transferable token.
-icon: coins
+description: Transferable lender claims, receipt units, burns, and proportional payouts.
 ---
 
-# Loan tokenisation
+# Loan receipts
 
-Each loan position is a **transferable token**. The token records:
+Each LoanV2 deploys a dedicated LoanToken. A funding deposit mints receipts to the lender; only that loan can mint and burn them. The current holder owns the refund or final settlement claim.
 
-* A claim on **principal** and **interest**.
-* The **maturity date**.
-* A **reference to the underlying collateral**.
-* **Accrued interest**.
+## Amounts and display
 
-## What accrued interest means
+Receipt minting uses raw supplied units one-for-one. Funding 100 USDC with six decimal places mints 100,000,000 raw receipt units. LoanToken reports the ERC-20 default of 18 display decimals, so applications should interpret the claim quantity using the supplied token's decimals.
 
-Accrued interest is the share of the loan's total interest that has built up since the loan started, **prorated by elapsed time**. This is the same idea as accrued coupon in a bond.
+LoanTokenEmitent's `emission` records cumulative minting. Current outstanding claims use LoanToken's `totalSupply`, which decreases when receipts are burned.
 
-It is used in two places:
+## Claim lifecycle
 
-{% columns %}
-{% column %}
-### Secondary-market pricing
+Before acceptance, a receipt holder can refund while the order is Lending or Canceled. The loan burns the holder's complete balance and returns the corresponding supplied funding.
 
-A buyer pays a **clean price plus accrued interest** — the same convention bond markets use.
+After acceptance, receipts participate in the final lender pool. Once the loan is Repaid, a holder withdraws its share of the remaining pool, calculated from its receipt balance and the remaining total supply, rounded down. The loan burns that complete receipt balance. As the pool and supply shrink together, the final holder receives any rounding remainder.
 
-See [Clean and dirty pricing](../repayment-and-exit/secondary-market.md#clean-and-dirty-pricing-for-loan-tokens).
-{% endcolumn %}
+Receipt burns during refunds and withdrawals are performed by LoanV2 and require the holder to call that loan. A separate receipt-token allowance is unnecessary.
 
-{% column %}
-### Vault NAV
+## Transfers
 
-A vault marks each loan token it holds at the **price the vault paid plus accrued interest** from that point.
+LoanToken uses ordinary ERC-20 transfers and allowances. A recipient acquires the lifecycle claim represented by the transferred balance. The final payout is in the loan's supplied asset and depends on the actual settled pool.
 
-See [Vault tokens and NAV](../vaults/tokens-and-nav.md).
-{% endcolumn %}
-{% endcolumns %}
-
-## Why this matters
-
-Because each loan position is a token, it can move freely:
-
-* Direct lenders can sell their position on the OTC secondary market.
-* Vaults can buy loan tokens at a discount on the secondary market and accrue them at a higher implied yield.
-* When a loan token is split across multiple holders, each holder can independently choose how to recover on default. See [How loans end](how-loans-end.md).
+See [transferring claims](../repayment-and-exit/secondary-market.md) and [settlement](how-loans-end.md).

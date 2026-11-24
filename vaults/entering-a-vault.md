@@ -1,34 +1,21 @@
 ---
-description: Two ways to acquire vault tokens.
-icon: arrow-right-to-bracket
+description: Owner deposits, free cash accounting, and funding allowances.
 ---
 
-# Entering a vault
+# Depositing cash
 
-A new depositor has two ways to acquire vault tokens.
+## Owner deposit
 
-## Direct deposit at NAV
+The owner approves Vault to spend ASSET, then calls `deposit` with a positive amount. The vault pulls the funds and verifies that its ASSET balance increased by exactly the amount deposited.
 
-The depositor sends the base asset to the vault and receives vault tokens at **current NAV per token**. See [Vault tokens and NAV](tokens-and-nav.md).
+`Deposited` records the amount. Cash stays in the vault until an executor funds a loan or the owner withdraws it.
 
-* If a **redemption request is open at the same time**, the deposit is matched against it directly (peer transfer).
-* Otherwise, the deposit **sits in the vault's base asset balance** until the vault funds new loans against it.
+## Free cash
 
-## Buy on the AMM
+`freeBalance` is the full current ASSET balance. Direct transfers to the vault also become owner cash and are included in that read. Deposits remain available while the vault is paused; pause governs new lending.
 
-The depositor buys vault tokens from the [AMM pool](amm-liquidity.md) at market price.
+## Deploying cash
 
-{% hint style="info" %}
-The AMM price can be **above or below NAV** depending on conditions. In stress, vault tokens typically trade at a discount.
-{% endhint %}
+The executor funds loans using the vault's cash, subject to [funding criteria](vault-rules.md). Vault temporarily approves each loan for the selected amount, invokes its lending operation, and clears the allowance. LoanToken receipts are minted to Vault.
 
-## Planned: smart router
-
-A smart router will automatically choose between the two entry paths.
-
-If a new depositor wants to enter and there are active redemption requests at NAV that are **cheaper than the current AMM price**, the router matches them directly first, and only uses the AMM for the remainder.
-
-This benefits both sides:
-
-* The **new depositor** gets more vault tokens per dollar.
-* The **redeemer** exits at NAV without paying the AMM spread.
+Refunds and final collections increase free cash for reuse or owner withdrawal. See [withdrawing and collecting](exiting-a-vault.md).

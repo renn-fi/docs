@@ -1,23 +1,25 @@
 ---
-description: A vault is a pool of capital that funds loans automatically under rules its manager sets at creation.
-icon: vault
+description: Owner-controlled cash accounts with delegated lending and on-chain funding criteria.
 ---
 
-# Introduction
+# Personal vaults
 
-A vault is a **pool of capital** that funds loans automatically based on rules its manager sets at creation. Depositors put in the base asset; in return they get **vault tokens**, which represent their share of whatever the vault holds — base asset balance, loan tokens, defaulted positions, and AMM share.
+A Vault holds one owner's cash in a single ERC-20 ASSET and retains receipts for the loans it funds. A designated executor chooses funding amounts and submits lending transactions. The vault enforces the owner's criteria against each proposed loan's on-chain terms.
 
-## Vaults add three things
+VaultFactory creates the instance, makes the caller its owner, and registers it for discovery. Each vault fixes its asset, LoanFactory, executor, and creating factory at deployment.
 
-* **Automation.** Lenders don't have to evaluate every loan request manually. The vault matches loans to its rules and allocates capital on its own.
-* **Management and risk control.** The manager runs the book, monitors exposure, and decides when to pause funding or trigger recovery on defaulted loans (see [How loans end](../loans/how-loans-end.md)). Depositors get that work done for them.
-* **Liquidity.** Vault tokens trade on the AMM and redeem through inflow matching, giving the loan market a fast exit layer that individual loan tokens don't have on their own.
+## Asset cycle
 
-## Where to next
+1. The owner deposits ASSET into the vault.
+2. The executor funds an eligible registered loan using vault cash.
+3. LoanV2 mints receipts to the vault, which holds them throughout the loan lifecycle.
+4. The owner or executor refunds an unaccepted order or collects a settled claim.
+5. Returned cash can be invested again or withdrawn by the owner.
 
-* [Creating a vault](creating-a-vault.md) — how vaults come into existence and the private/public rollout.
-* [Vault rules](vault-rules.md) — what a manager configures at creation.
-* [How vaults pick loans](loan-selection.md) — automated allocation across matching rules.
-* [Vault tokens and NAV](tokens-and-nav.md) — how the vault is valued.
-* [Entering a vault](entering-a-vault.md) and [Exiting a vault](exiting-a-vault.md) — the four ways in and four ways out.
-* [Fees](fees.md) — performance fee and optional management fee.
+The owner controls idle cash, rate and term criteria, collateral admission, and pause status. Funding is reserved to the fixed executor; an owner can fund when that owner is also the designated executor.
+
+## Cash and claims
+
+`freeBalance` reports the vault's current ASSET balance, including direct transfers. LoanToken balances identify its claims on individual loans. Refund and collection pay into the vault. Owner withdrawals pay idle cash to the current owner.
+
+Continue with [creating a vault](creating-a-vault.md), [funding criteria](vault-rules.md), and [loan selection](loan-selection.md).

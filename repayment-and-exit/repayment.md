@@ -1,47 +1,29 @@
 ---
-description: Bullet repayment, early repayment with make-whole, and sale-driven closure.
-icon: money-bill-transfer
+description: Linear interest accrual, bounded repayment, and uncapped versus collar settlement.
 ---
 
-# How loans are repaid (v1)
+# Repayment and interest
 
-## Bullet repayment
+## How interest accrues
 
-**Principal and interest are paid together at maturity.** There are no monthly or interim payments.
+A loan's rate is a full-term multiplier. At acceptance, LoanV2 computes the full-term target from actual principal and the rate, rounding up to a supplied atom. Full-term interest is that target less principal.
 
-## Early repayment with full make-whole
+Accrued interest is full-term interest multiplied by elapsed seconds, capped at the term, divided by the term and rounded up. The repayment amount is principal plus accrued interest less accounted repayments.
 
-A borrower can close their loan early at any time. To do so, they pay back:
+For 1,000 supplied units at `1.1e18` over 30 days, the full-term target is 1,100. Repayment after 15 days is 1,050. In the acceptance block, only principal is due. Interest stops growing at maturity.
 
-* The **principal**, plus
-* The **full interest** the loan would have earned **if it had run to maturity**.
+## Paying the current debt
 
-{% hint style="info" %}
-The lender gets exactly what they signed up for, regardless of when the borrower decides to close.
-{% endhint %}
+Any payer can repay while the loan is Repaying or Expired. Each repayment pays the full current amount due. The loan pulls supplied assets from the payer and verifies the exact balance increase.
 
-## Sale-driven closure
+`repaymentDue` quotes the current amount. `repaymentDueAt` quotes a chosen timestamp using current loan accounting. The bounded repayment operation accepts a maximum amount and deadline, calculates the exact debt at execution, and reverts if either limit is exceeded. The parameterless repayment uses the same debt calculation with unrestricted amount and time bounds, subject to the payer's allowance.
 
-A borrower can also close the loan early by triggering a DEX sale of the collateral.
+A successful payment freezes `repaymentTarget` to principal plus the accrued interest paid. Subsequent repayment quotes return zero, including when a collar is still awaiting recovery.
 
-* The sale only executes if the proceeds **cover principal plus full make-whole interest**.
-* The lender still gets exactly what they signed up for.
-* The borrower gets whatever is left over after the loan is paid off.
+## When payment completes the loan
 
-See [How loans end → Who can trigger what, and when](../loans/how-loans-end.md#who-can-trigger-what-and-when) for the precise rules around borrower-initiated sales.
+For an uncapped loan, full repayment immediately settles the provider with zero debt and puts LoanV2 into Repaid. Retained collateral stays in the loan for borrower withdrawal, and lenders can withdraw their claims immediately. Unused PUT tokens remain in the position.
 
-## Planned for v2
+For a collar, repayment funds the lender pool and freezes interest. Final settlement still waits for maturity and a timestamp strictly after the CALL receipt's exercise deadline. CALL redemption then releases position assets for final allocation.
 
-### Coupon loans
-
-Periodic interest payments instead of bullet repayment, for longer-duration loans.
-
-### Maturity rollover
-
-At maturity, a borrower can **extend the loan instead of repaying**. Mechanically, this is opening a new loan against the same collateral, atomically:
-
-* The new loan's funding pays off the original lenders.
-* New lenders take the new loan.
-* If the new loan can't find funding by the original maturity, the original loan resolves the normal way (repayment or default).
-
-See [Open items](../roadmap/open-items.md) for the edge case of partial rollover funding.
+See [how loans end](../loans/how-loans-end.md) for settlement states and [events and integration](../operations/events-and-integration.md) for repayment allowances.

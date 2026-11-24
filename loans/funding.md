@@ -1,69 +1,29 @@
 ---
-description: How loan requests get filled by direct lenders or vaults.
-icon: hand-holding-dollar
+description: Direct and vault funding, refunds, cancellation, and borrower acceptance.
 ---
 
-# Funding
+# Funding and acceptance
 
-Loan requests are listed on a marketplace. Lenders fund them either directly or through vaults. A request can be:
+## Funding an order
 
-* **Filled by a single lender** for the full amount, or
-* **Split across several lenders**.
+During Lending, a lender approves LoanV2 for the supplied asset and calls `lend` with a positive amount within the remaining funding capacity. LoanV2 records the funding in `vaultLending`, mints the same raw amount of LoanToken to the caller, and verifies exact receipt of the supplied asset.
 
-## Direct funding
+Several lenders can fund one order, and the same lender can add funding repeatedly. A personal vault follows this same loan entry point through its executor-controlled funding operation.
 
-Any wallet can fund a loan directly from the marketplace. The lender picks the loan, sends the funding amount, and receives loan tokens.
+## Refunds and cancellation
 
-## Vault funding
+In Lending or Canceled, `refund` burns all receipts held by the caller and returns the corresponding funding. A refund during Lending frees capacity for another lender.
 
-A vault funds loans automatically based on its rules. Depositors deposit the vault's base asset and receive vault tokens; the vault holds the resulting loan tokens on their behalf. See [Vaults](../vaults/introduction.md) for the full mechanics.
+The borrower can explicitly cancel while the order is Lending. The order also becomes Canceled at `createdAt` plus `orderCancelation`. Canceled orders allow lender refunds and release of collateral to the borrower.
 
-## End-to-end flow
+## Borrower acceptance
 
-{% stepper %}
-{% step %}
-### 1. Borrower creates a loan order
+Only the borrower can accept, before the order deadline and with positive funding. Acceptance uses all funding available in that transaction as principal.
 
-The borrower provides collateral; alternatively, an existing Aave debt is refinanced.
-{% endstep %}
+LoanV2 retains collateral proportionally and calculates the full-term target as principal multiplied by the rate, divided by `1e18`, rounded up. It records `acceptedAt`; maturity is that timestamp plus the term.
 
-{% step %}
-### 2a. Lender deposits into the vault
+The borrower selects uncapped or capped opening, the collar cap price when applicable, a signed maximum net premium, and an execution deadline. LoanHedging creates the position through LoanFactory and opens it through the selected provider.
 
-The lender provides stablecoins (USDC) to the vault and receives **rnVault** tokens representing their share in the vault.
-{% endstep %}
+A positive premium budget is funded separately by the borrower through an allowance to LoanV2. Unused premium budget and net premium income return to the borrower. The accepted lender funding is paid to the borrower as principal.
 
-{% step %}
-### 2b. AMM liquidity is seeded
-
-A portion of the vault's USDC and rnVault tokens are deposited into **Renn DEX** as liquidity for the AMM.
-{% endstep %}
-
-{% step %}
-### 3. The vault fulfils the loan
-
-Once the vault has sufficient funds, it fulfils the loan order on the Renn Debt Marketplace.
-{% endstep %}
-
-{% step %}
-### 4. Optional early exit
-
-The lender can exit early by selling rnVault tokens on Renn DEX.
-{% endstep %}
-{% endstepper %}
-
-## Funding outcomes
-
-{% tabs %}
-{% tab title="Threshold reached" %}
-The loan **activates**. The borrower receives the funds and lenders receive a token representing their share of the loan.
-{% endtab %}
-
-{% tab title="Threshold not reached" %}
-The loan **does not activate**. The borrower's collateral is unlocked and returned.
-{% endtab %}
-
-{% tab title="Borrower withdraws collateral" %}
-If the borrower withdraws their collateral before activation, the loan request **closes**. Any lenders who had already staked funds get them back.
-{% endtab %}
-{% endtabs %}
+Position creation, opening, collateral placement, refunds, and principal release share one transaction. A required step failing rolls back acceptance. Continue with [hedge opening and recovery](../hedging/opening-and-recovery.md) or [repayment](../repayment-and-exit/repayment.md).

@@ -1,36 +1,28 @@
 ---
-description: >-
-  Renn Finance is a fixed-term, fixed-rate lending protocol with no margin
-  calls and no liquidations during the loan term.
-icon: hand-wave
+description: Technical reference for Renn contracts, asset custody, and protocol flows.
 ---
 
-# Welcome to Renn Finance
+# Renn Finance
 
-Renn Finance is a protocol for **fixed-term, fixed-rate loans** against BTC and ETH collateral. Borrowers lock collateral up front and take loans they can rely on: no margin calls, no liquidations during the term, and no surprise rate changes. Lenders fund loans directly or through vaults that pool capital and allocate it under rules set at vault creation.
+Renn is a collateralized lending protocol built around individual fixed-term loans. Borrowers escrow collateral and propose a full-term repayment rate. Lenders fund orders directly or through personal vaults. Borrower acceptance opens the selected hedging position and releases the funded principal.
 
-{% hint style="info" %}
-This documentation reflects the **v1 protocol specification**. Features explicitly marked _planned_ or _later_ are documented for context but are not part of the launch release. See [MVP Scope](roadmap/mvp-scope.md) for what ships first.
-{% endhint %}
+These pages describe the current LoanV2, Hedging, and personal Vault implementation. Asset support, execution markets, and the selected hedging provider are determined by each deployment's configuration.
 
-## Where to start
+## Explore the protocol
 
-<table data-view="cards"><thead><tr><th></th><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><h4>Overview</h4></td><td>What Renn is and the principles that shape it.</td><td></td><td><a href="overview/introduction.md">introduction.md</a></td></tr><tr><td><h4>Loans</h4></td><td>How loans are created, funded, tokenised, and resolved.</td><td></td><td><a href="loans/loan-creation.md">loan-creation.md</a></td></tr><tr><td><h4>Vaults</h4></td><td>How vaults pool capital and allocate it into loans.</td><td></td><td><a href="vaults/introduction.md">introduction.md</a></td></tr><tr><td><h4>Marketplace &#x26; Pricing</h4></td><td>How loan rates are discovered and how the marketplace works.</td><td></td><td><a href="marketplace/rate-setting.md">rate-setting.md</a></td></tr><tr><td><h4>Stress scenarios</h4></td><td>How the protocol behaves under market stress.</td><td></td><td><a href="stress-scenarios.md">stress-scenarios.md</a></td></tr><tr><td><h4>Roadmap</h4></td><td>What launches first and what comes next.</td><td></td><td><a href="roadmap/mvp-scope.md">mvp-scope.md</a></td></tr></tbody></table>
+* [Protocol overview](overview/introduction.md) follows a loan from collateral deposit to final withdrawals.
+* [Contract roles](architecture/contracts.md) explains the factories, loans, receipts, hedging positions, and infrastructure.
+* [Custody and permissions](architecture/custody-and-permissions.md) identifies who controls each operation and where assets reside.
+* [Loans](loans/loan-creation.md) covers terms, funding, acceptance, interest, and settlement.
+* [Hedging](hedging/positions.md) explains protective PUTs, covered collars, and recovery.
+* [Personal vaults](vaults/introduction.md) covers owner cash, executor funding, and collection.
+* [Infrastructure](infrastructure/pricing-and-execution.md) describes price sources, swap execution, and configuration.
+* [Events and integration](operations/events-and-integration.md) describes discovery, state reads, and transaction preparation.
 
-## What v1 includes
+## Terms and units
 
-* Fixed-term loans against BTC and ETH, up to **50% LTV**.
-* Both fixed-rate and auction-based rate setting.
-* **Loan tokenisation** and an OTC secondary market for loan tokens.
-* **Vaults**, both private (at launch) and public (Stage 2).
-* **Vault token AMM** for instant secondary exit.
-* **Refinancing** of existing positions from Aave, Euler, and similar protocols.
-* DEX-based collateral sale on default.
+The **collateral** is the ERC-20 asset pledged by the borrower. The **supplied asset**, also called consideration, is the ERC-20 asset lent to the borrower and distributed to receipt holders. **Principal** is the funding actually accepted. **Maturity** is acceptance time plus the loan term.
 
-Coupon loans, maturity rollover, structured leverage, a native token, and additional collateral assets are planned for later. See the [Roadmap](roadmap/mvp-scope.md) and [Open Items](roadmap/open-items.md).
+A loan's **rate** is its full-term repayment multiplier, scaled by `1e18`. A value of `1.1e18` means principal plus 10% interest over the entire term. Interest accrues linearly until repayment or maturity.
 
-## Download the spec
-
-{% file src=".gitbook/assets/renn-finance-spec-v1.pdf" %}
-Renn Finance: Protocol Design Specification, v1
-{% endfile %}
+Token amounts and oracle quotes use native token units. LoanToken receipt amounts equal the raw supplied units deposited. Option strikes and collar cap prices use 18-decimal fixed point. Times use Unix timestamps and durations in seconds.

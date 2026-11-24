@@ -3,3 +3,20 @@ root: ./
 structure:
   readme: ./README.md
   summary: ./SUMMARY.md
+
+redirects:
+  loans/refinancing: loans/loan-creation.md
+  marketplace/auction: loans/funding.md
+  marketplace/rate-setting: loans/loan-creation.md
+  vaults/amm-liquidity: vaults/introduction.md
+  vaults/tokens-and-nav: vaults/introduction.md
+  vaults/fees: vaults/introduction.md
+  vault-health/health-factor: vaults/vault-rules.md
+  vault-health/manager-actions: vaults/vault-rules.md
+  vault-health/defaulted-loans: loans/how-loans-end.md
+  vault-health/twin-vault: vaults/introduction.md
+  roadmap/leveraged-positions: overview/introduction.md
+  roadmap/mvp-scope: overview/introduction.md
+  roadmap/open-items: overview/introduction.md
+  protocol-economics: overview/core-principles.md
+  stress-scenarios: loans/how-loans-end.md

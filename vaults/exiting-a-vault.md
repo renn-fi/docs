@@ -1,48 +1,29 @@
 ---
-description: Four ways out of a vault position.
-icon: arrow-right-from-bracket
+description: Idle-cash withdrawals, order refunds, settlement, and collection.
 ---
 
-# Exiting a vault position
+# Withdrawing and collecting
 
-A depositor has four ways to exit.
+## Withdraw idle cash
 
-## Sell on the AMM
+Only the owner can withdraw ASSET, with a positive amount at most `freeBalance`. The transfer goes to that owner. Outbound payment uses SafeERC20, so net receipt follows the asset's transfer behavior.
 
-Fastest path. The depositor sells their vault token on the [AMM](amm-liquidity.md) and gets the base asset immediately at whatever price the market is offering.
+Cash already funded into a loan returns through that loan's lifecycle before it becomes idle vault cash again.
 
-{% hint style="info" %}
-The AMM price can be above or below NAV depending on conditions; in stress it trades at a discount.
-{% endhint %}
+## Refund an unaccepted order
 
-## Inflow matching
+The owner or executor calls Vault's `refund` while LoanV2 is Lending or Canceled. Vault checks registration and supplied-asset identity, then calls LoanV2's refund. The loan burns all receipts held by Vault and returns supplied funding to it.
 
-When a **redemption request lines up with a new deposit**, the protocol settles them against each other at NAV:
+Vault reports the actual ASSET balance increase in `LoanRefunded`. A transfer fee can reduce that net receipt, including to zero, while the receipt claim is closed.
 
-* The **new depositor** pays in the base asset.
-* The **redeemer** receives it.
-* The redeemer's vault tokens transfer to the new depositor.
+## Collect a settled claim
 
-The vault's holdings and total vault-token supply don't change; the vault acts as **escrow**.
+The owner or executor calls `collect` once LoanV2 is Repaid. Vault calls the loan's lender withdrawal, burns its complete receipt position, and receives its portion of the supplied pool. `LoanCollected` reports the actual balance increase, including zero for a fully impaired claim.
 
-## Pro-rata in-kind redemption
+Full repayment of an uncapped loan enables immediate collection. Other accepted loans first need a successful settlement transaction. Any caller, including the executor, may invoke LoanV2's public settlement when timing conditions are satisfied. An option-backed collar also waits for CALL redemption eligibility.
 
-The default path when neither AMM exit nor inflow matching applies.
+## Changes to funding rules
 
-The depositor's vault tokens are burned and they get their **proportional slice of every vault asset** at the moment of redemption:
+Refund and collection remain available while the vault is paused, after criteria changes, or after a collateral is removed. They validate the pinned registry and supplied asset and rely on the loan's lifecycle for payout eligibility.
 
-* Base asset balance.
-* Each loan token the vault holds (including defaulted ones not yet sold).
-* The vault's AMM share.
-
-{% hint style="warning" %}
-The slice is **in-kind** — the redeemer cannot cherry-pick the liquid parts. Healthy loans tend to find buyers via OTC; stressed loans either sit with the redeemer or sell at a deeper discount.
-{% endhint %}
-
-## Hold to vault maturity
-
-For **fixed-term vaults**, a depositor can simply hold their vault token until the vault winds down.
-
-* At maturity, all loans have either been repaid or resolved via DEX sale.
-* The vault distributes its remaining balance pro-rata to vault token holders and closes.
-* **No action required** from the depositor.
+Recovered assets remain in Vault until the owner withdraws or the executor funds another eligible loan.

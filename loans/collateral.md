@@ -1,26 +1,27 @@
 ---
-description: What can be used as collateral and when it gets locked.
-icon: lock
+description: Collateral admission, proportional retention, custody, and borrower withdrawals.
 ---
 
 # Collateral
 
-## Collateral scope
+## Token admission
 
-At launch the protocol accepts **only BTC and ETH**. These are the two assets with the deepest liquidity, the most predictable market behaviour, and the lowest systemic risk.
+LoanFactory's collateral whitelist determines the tokens available for new orders. Consideration tokens have a separate whitelist. An order pairs an admitted collateral token with a distinct admitted consideration token.
 
-Additional assets can be added later. Custom collateral configurations may also be introduced earlier for specific large borrowers or lenders.
+Existing loans retain their asset pair when token admission changes. A loan's fixed collateral amount establishes its initial escrow; the borrower transfers it before funding begins.
 
-## Collateral locking
+## Acceptance and proportional retention
 
-Collateral is transferred to the protocol and **locked the moment the loan is created**, before funding begins.
+The borrower can accept partial funding. LoanV2 retains initial collateral multiplied by actual funding divided by the requested amount, rounded up to a collateral atom. The remaining collateral is returned during acceptance.
 
-{% hint style="info" %}
-This commits the borrower up front and stops anyone from posting fake or unfunded loan requests.
-{% endhint %}
+For example, one collateral token backing a request for 1,000 supplied units becomes 0.4 retained collateral when the borrower accepts 400 units. The other 0.6 returns to the borrower.
 
-## What happens to locked collateral
+For uncapped protection, retained collateral stays in LoanV2. For a collar, Hedging locks it as covered CALL backing in Greek and gives the position its writer receipts. See [hedging positions](../hedging/positions.md).
 
-* **If the loan activates** (funding reaches the minimum threshold), collateral stays locked until the loan resolves — either through repayment, or through one of the recovery paths described in [How loans end](how-loans-end.md).
-* **If the loan does not activate**, collateral is unlocked and returned.
-* **If the borrower withdraws collateral before activation**, the loan request closes and any lenders who had already staked funds get them back.
+## Returning collateral
+
+If an order is canceled explicitly or expires before acceptance, `refundBorrower` releases its accounted collateral to the fixed borrower. Lender refunds are independent and can happen before or after this release.
+
+After final settlement, `withdrawBorrower` releases remaining accounted collateral and supplied surplus. Any caller can trigger either borrower release, while the destination remains the borrower stored in the terms.
+
+Settlement allocates the collateral remaining after position recovery and required sales. The [settlement flow](how-loans-end.md) explains how those assets are calculated.

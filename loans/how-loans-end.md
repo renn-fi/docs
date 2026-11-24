@@ -1,80 +1,38 @@
 ---
-description: Repayment, default, and the recovery paths available to the lender.
-icon: flag-checkered
+description: Loan states, recovery eligibility, final accounting, and withdrawals.
 ---
 
-# How loans end
+# Settlement and withdrawals
 
-A loan ends in one of two states: **repaid**, or **in default**.
+## Lifecycle states
 
-{% hint style="info" %}
-**Default** means the loan was not repaid by maturity. The protocol does not classify reasons.
-{% endhint %}
+| State | Meaning |
+| --- | --- |
+| Created | Loan deployed and awaiting collateral accounting |
+| Lending | Collateral accounted; order open for funding and acceptance |
+| Canceled | Borrower canceled or the order deadline was reached |
+| Repaying | Funding accepted; maturity still ahead |
+| Expired | Accepted loan reached maturity and awaits settlement |
+| Repaid | Recovery and final allocation completed |
 
-## Repaid
+`state` derives Canceled and Expired from timestamps when their deadlines are reached. `stateUpdate` persists the derived transition and emits the corresponding event. Entry points use the derived state, so eligibility changes at the deadline without a separate update transaction.
 
-The borrower can repay at any time during the loan term. They pay principal plus interest, and their collateral unlocks and is returned.
+## Final settlement
 
-For early-repayment mechanics (full make-whole), see [How loans are repaid](../repayment-and-exit/repayment.md).
+A fully repaid uncapped loan settles in its repayment transaction. Otherwise, any caller can request `settle` or `defaultLoan` at maturity. The borrower can request the same settlement using `repayFromCollateral`. A collar also waits until strictly after the CALL receipt's exercise deadline.
 
-## In default
+LoanV2 passes remaining debt and its accounted collateral budget to the pinned provider. The provider returns recovered supplied assets and residual collateral through its [recovery flow](../hedging/opening-and-recovery.md). LoanHedging measures the loan's actual balance changes.
 
-The contract holds the collateral. The lender chooses how to recover:
+## Allocating recovery
 
-{% tabs %}
-{% tab title="DEX sale" %}
-The contract sells the collateral on a supported DEX. Proceeds are applied in order:
+The lender pool is accounted repayments plus new supplied recovery, capped at `repaymentTarget`. Supplied assets above that target become borrower surplus. `shortfall` is the target less the lender allocation. Remaining accounted collateral belongs to the borrower.
 
-1. **Principal** first.
-2. **Interest** next.
-3. **Any remainder** goes to the borrower.
+The loan enters Repaid when this allocation completes, including a recovery below the target. A failing recovery transaction rolls back settlement and can be retried.
 
-Post-default DEX sales execute **at best available price**; the lender absorbs any shortfall.
-{% endtab %}
+## Withdrawals
 
-{% tab title="Take collateral at oracle price" %}
-The lender takes a quantity of collateral equal to:
+Each receipt holder calls `withdraw` to burn its full balance and receive its proportion of the remaining supplied lender pool, rounded down. The final holder receives the remaining rounding balance. A zero-value claim can still be burned and closed.
 
-$$
-\frac{principal + interest}{oracle\_price}
-$$
+`withdrawBorrower` releases residual accounted collateral and supplied surplus to the fixed borrower. Any caller can trigger it. Lender and borrower withdrawals use separate accounting buckets and can occur in either order.
 
-The borrower keeps the remainder. The oracle is the same TWAP used at origination. See [Where the price feed is used](../vaults/vault-rules.md#where-the-price-feed-is-used).
-{% endtab %}
-{% endtabs %}
-
-### When the loan token is split across holders
-
-When a loan token is held by multiple parties, each holder triggers recovery on **their own share independently**:
-
-* **Holder N%** who chooses DEX sale: that share of collateral is sold on DEX; proceeds go to them.
-* **Holder M%** who chooses take-at-oracle: that share of collateral transfers to them in-kind at the oracle price.
-
-The two paths can run **in parallel for the same loan**; no coordination between holders is required. The borrower's remainder is calculated on total recovered value across paths.
-
-## Who can trigger what, and when
-
-{% columns %}
-{% column %}
-### During the loan term
-
-The **borrower** can trigger a sale at any time (sale-driven closure). The contract checks that the sale will produce enough to cover principal plus full interest as if the loan ran to maturity:
-
-* **If yes**, the sale executes and the loan closes.
-* **If not**, the sale is rejected and the loan continues.
-
-If a borrower-triggered sale clears the contract check but the actual swap result falls short of debt by more than a configurable tolerance, the sale aborts. This protects the lender if DEX state diverges from the oracle at execution.
-{% endcolumn %}
-
-{% column %}
-### After maturity
-
-Each **loan-token holder** can trigger their own recovery path (DEX sale or take-at-oracle) for their share.
-
-The **borrower** can trigger only a DEX sale for the whole position, and only if the oracle price indicates the collateral covers principal plus interest in full. This prevents the borrower from forcing a loss-realising sale on the lender.
-{% endcolumn %}
-{% endcolumns %}
-
-## If the collateral doesn't cover the loan
-
-If collateral value isn't enough to cover the loan, the lender takes everything and absorbs the shortfall.
+For canceled orders, use lender `refund` and `refundBorrower` instead. See [exit paths](../repayment-and-exit/exit-options.md).

@@ -1,58 +1,47 @@
 # Table of contents
 
-* [Welcome to Renn Finance](README.md)
+* [Renn Finance](README.md)
 
 ## Overview
 
-* [Introduction](overview/introduction.md)
+* [Protocol overview](overview/introduction.md)
 * [Core principles](overview/core-principles.md)
+
+## Architecture
+
+* [Contract roles](architecture/contracts.md)
+* [Custody and permissions](architecture/custody-and-permissions.md)
 
 ## Loans
 
 * [Loan creation](loans/loan-creation.md)
 * [Collateral](loans/collateral.md)
-* [Funding](loans/funding.md)
-* [Loan tokenisation](loans/loan-tokenisation.md)
-* [How loans end](loans/how-loans-end.md)
-* [Refinancing](loans/refinancing.md)
+* [Funding and acceptance](loans/funding.md)
+* [Loan receipts](loans/loan-tokenisation.md)
+* [Repayment and interest](repayment-and-exit/repayment.md)
+* [Settlement and withdrawals](loans/how-loans-end.md)
+* [Exit paths](repayment-and-exit/exit-options.md)
+* [Transferring claims](repayment-and-exit/secondary-market.md)
 
-## Marketplace & Pricing
+## Hedging
 
-* [Rate setting](marketplace/rate-setting.md)
-* [The auction](marketplace/auction.md)
+* [Hedging positions](hedging/positions.md)
+* [Opening and recovery](hedging/opening-and-recovery.md)
 
-## Vaults
+## Personal vaults
 
-* [Introduction](vaults/introduction.md)
+* [Personal vaults](vaults/introduction.md)
 * [Creating a vault](vaults/creating-a-vault.md)
-* [Vault rules](vaults/vault-rules.md)
-* [How vaults pick loans](vaults/loan-selection.md)
-* [Vault tokens and NAV](vaults/tokens-and-nav.md)
-* [AMM liquidity](vaults/amm-liquidity.md)
-* [Entering a vault](vaults/entering-a-vault.md)
-* [Exiting a vault](vaults/exiting-a-vault.md)
-* [Fees](vaults/fees.md)
+* [Funding criteria and controls](vaults/vault-rules.md)
+* [How vaults fund loans](vaults/loan-selection.md)
+* [Depositing cash](vaults/entering-a-vault.md)
+* [Withdrawing and collecting](vaults/exiting-a-vault.md)
 
-## Vault Health & Stress Response
+## Infrastructure
 
-* [Health factor](vault-health/health-factor.md)
-* [What a manager can do](vault-health/manager-actions.md)
-* [Twin vault](vault-health/twin-vault.md)
-* [Defaulted loans inside a vault](vault-health/defaulted-loans.md)
+* [Pricing and execution](infrastructure/pricing-and-execution.md)
+* [Protocol configuration](infrastructure/configuration.md)
 
-## Repayment & Exit
+## Integration
 
-* [How loans are repaid](repayment-and-exit/repayment.md)
-* [Exit options](repayment-and-exit/exit-options.md)
-* [Secondary market and arbitrage](repayment-and-exit/secondary-market.md)
-
-## Operations
-
-* [Stress scenarios](stress-scenarios.md)
-* [Protocol economics](protocol-economics.md)
-
-## Roadmap
-
-* [MVP scope](roadmap/mvp-scope.md)
-* [Leveraged positions](roadmap/leveraged-positions.md)
-* [Open items & future extensions](roadmap/open-items.md)
+* [Events and integration](operations/events-and-integration.md)

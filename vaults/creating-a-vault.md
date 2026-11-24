@@ -1,50 +1,28 @@
 ---
-description: Anyone can create a vault. The creator is the manager.
-icon: square-plus
+description: Vault creation parameters, immutable configuration, registration, and ownership.
 ---
 
 # Creating a vault
 
-Anyone can create a vault. The person who creates it is the **manager**. Each vault is one of two types:
+The creator calls VaultFactory with an asset, LoanFactory, executor, initial criteria, and initial allowed collaterals. The factory deploys a Vault owned by that creator, records `isVault`, and emits `VaultCreated` with the complete configuration.
 
-{% tabs %}
-{% tab title="Private" %}
-Only **whitelisted wallets** can deposit. The manager controls the whitelist.
+## Initial configuration
 
-Private vaults are useful when a manager is running capital for a known set of LPs — institutional partners, an internal book, or an invited cohort.
-{% endtab %}
+| Parameter | Meaning |
+| --- | --- |
+| ASSET | Supplied ERC-20 held and lent by the vault |
+| LOAN_FACTORY | Trusted registry for eligible LoanV2 instances |
+| EXECUTOR | Address authorized to fund loans |
+| `minRate` | Minimum full-term repayment multiplier, scaled by `1e18` |
+| `minTerm`, `maxTerm` | Inclusive loan duration bounds in seconds |
+| Collateral list | Nonempty initial set of permitted loan collateral tokens |
 
-{% tab title="Public" %}
-**Open to outside depositors.** Anyone holding the base asset can deposit.
+Asset and factory addresses must contain deployed code, and the executor must be nonzero. Minimum rate must be at least `1e18`; minimum term must be positive, and maximum term must be at least the minimum. Initial collaterals must be distinct deployed contracts different from ASSET.
 
-Public vaults rely on the vault token AMM and on-chain reputation to attract and retain capital.
-{% endtab %}
-{% endtabs %}
+## Fixed and owner-managed settings
 
-## Two-stage rollout
+ASSET, LOAN_FACTORY, EXECUTOR, and VAULT_FACTORY are immutable. The owner can update rate and term criteria, add or remove collateral, and pause new lending after creation.
 
-Public and private vaults launch in sequence:
+Vault ownership uses a two-step transfer. The current owner nominates the next owner, who accepts ownership. The fixed executor remains the same across this transfer.
 
-{% stepper %}
-{% step %}
-### Stage 1, at launch: only private vaults work
-
-We use this stage to observe the system under real flows. Public vault mechanics are designed but not yet enabled.
-{% endstep %}
-
-{% step %}
-### Stage 2, after enough operational data: public vaults turn on
-
-Once Stage 2 starts, a manager can **convert an existing private vault to public**.
-
-The conversion is **one-way**; once a vault is public, it cannot be turned back into private. This stops a manager from accepting outside money and then shutting the door on those depositors.
-{% endstep %}
-{% endstepper %}
-
-{% hint style="info" %}
-The AMM allocation for a vault is normally fixed at vault creation. At private-to-public conversion it is the **one rule that can be changed** — and only from the private-stage value to a public-stage level (typically increased to seed secondary liquidity). See [Vault rules → AMM allocation](vault-rules.md#amm-allocation).
-{% endhint %}
-
-## What's next
-
-After deciding on the vault type, the manager configures the vault's [rules](vault-rules.md). These rules are set at creation and **cannot change afterward** (with the single exception above).
+After creation, the owner can [deposit cash](entering-a-vault.md) and the executor can begin funding eligible loans.

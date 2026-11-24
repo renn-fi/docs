@@ -1,37 +1,25 @@
 ---
-description: How direct lenders and vault depositors exit positions before maturity.
-icon: door-open
+description: Available asset recovery actions for borrowers, lenders, and vault owners.
 ---
 
-# Exit options
+# Exit paths
 
-## Direct lenders (holding individual loan tokens)
+## Before acceptance
 
-{% columns %}
-{% column %}
-### Hold to maturity
+A receipt holder can refund its full current balance while the order is Lending or Canceled. LoanV2 burns the receipts and returns the corresponding supplied funding.
 
-Wait for the full payout at maturity, then collect principal plus interest from the borrower's repayment (or trigger recovery on default).
-{% endcolumn %}
+The borrower can cancel an active order before its deadline. Once the order is Canceled, accounted collateral can be released through `refundBorrower`. The supplied and collateral refunds are independent.
 
-{% column %}
-### Sell on OTC
+## After acceptance
 
-Sell the loan token to another buyer. Buyers are typically **vaults whose rules match the loan's remaining parameters** (collateral, remaining term, yield).
+A payer can repay the full current debt using supplied assets. Uncapped repayment immediately enables final lender and borrower withdrawals. Collar repayment freezes interest and funds the loan, while recovery waits for its settlement timing.
 
-Price is negotiated. See [Clean and dirty pricing](secondary-market.md#clean-and-dirty-pricing-for-loan-tokens).
-{% endcolumn %}
-{% endcolumns %}
+At maturity, the loan can settle through its pinned provider. After allocation completes, receipt holders withdraw supplied payouts, and borrower assets are released to the borrower.
 
-{% hint style="info" %}
-**Loan tokens do not trade on the AMM.** They trade OTC. The AMM is for vault tokens only.
-{% endhint %}
+Receipts remain transferable through their ERC-20 methods. Transferring a claim passes its refund or settlement rights to the recipient. See [transferring claims](secondary-market.md).
 
-## Vault depositors
+## Personal vault cash
 
-Vault depositors exit via the four paths described in [Exiting a vault](../vaults/exiting-a-vault.md):
+A vault owner can withdraw idle ASSET held by the vault. Funding in an unaccepted loan returns through Vault's refund operation, and a settled claim returns through collection. Both return cash to the vault before an owner withdrawal.
 
-1. **Sell on the AMM** — fastest path, market-clearing price.
-2. **Inflow matching** — settle at NAV against an incoming deposit.
-3. **Pro-rata in-kind redemption** — receive a proportional slice of every vault asset.
-4. **Hold to vault maturity** — for fixed-term vaults, simply wait until the vault winds down.
+See [withdrawing and collecting](../vaults/exiting-a-vault.md) for the personal vault cycle.

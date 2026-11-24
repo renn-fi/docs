@@ -1,43 +1,30 @@
 ---
-description: A high-level overview of how Renn Finance works.
-icon: book-open
+description: The participants and end-to-end lifecycle of a collateralized loan.
 ---
 
-# Introduction
+# Protocol overview
 
-Borrowers stake BTC or ETH as collateral and take **fixed-term, fixed-rate loans** against it. There are no margin calls and no liquidations during the term. A loan has two possible outcomes at maturity: **repaid** or **in default**.
+## Participants
 
-{% hint style="info" %}
-**Default** in this documentation means the loan was not repaid by maturity. The protocol does not classify reasons.
-{% endhint %}
+The borrower fixes the loan terms, deposits collateral, and decides when to accept the available funding. Lenders contribute supplied assets and receive transferable LoanToken receipts. A personal vault can act as a lender using its owner's cash and a designated executor.
 
-## What happens at maturity
+LoanFactory creates and registers loans. A hedging provider manages the accepted loan's position. For option-backed protection, Hedging trades through Prop and controls a dedicated GreekPut or GreekCollar position.
 
-If the loan is repaid, the lender gets principal plus interest and the borrower gets their collateral back.
+## End-to-end flow
 
-If it defaults, the lender chooses how to recover:
+1. **Create an order.** LoanFactory deploys LoanV2 and its receipt token, transfers the borrower's collateral directly into the loan, and activates the funding period.
+2. **Fund.** Lenders deposit the supplied asset and receive receipts. They can refund their receipts while the order is unaccepted.
+3. **Accept.** The borrower accepts positive funding before the order deadline. Principal equals the amount funded at execution. Collateral is retained proportionally, and the rest returns to the borrower.
+4. **Open protection.** Acceptance creates and opens the selected hedge, using a separate borrower premium budget. The transaction then releases principal to the borrower.
+5. **Repay or recover.** A payer can repay principal plus accrued interest. At maturity, settlement can recover assets through the position and collateral sales.
+6. **Withdraw.** After settlement, receipt holders claim supplied assets. Residual collateral and supplied surplus go to the borrower.
 
-* **Trigger a DEX sale** through the contract. Proceeds cover principal first, then interest; any remainder goes to the borrower.
-* **Take the collateral in-kind** at oracle price.
+For uncapped protection, full repayment settles the loan immediately. A collar waits for maturity and completion of its CALL exercise window before final recovery, even after an earlier repayment.
 
-See [How loans end](../loans/how-loans-end.md) for the full mechanics.
+## Separate loan accounting
 
-## Loans, vaults, and the marketplace
+Each loan has its own terms, collateral, receipts, repayment pool, and settlement result. Its `shortfall` records any unpaid part of the target after recovery. Repaid is the terminal state for completed allocation, including a settlement with a shortfall.
 
-Loans are issued as **transferable tokens**. They can be bought directly on the marketplace or via vaults.
+Personal vaults retain the receipts for loans they fund. Their owner can withdraw idle cash, and the owner or executor can recover funds from orders or collect settled claims.
 
-**Vault managers** pool capital and allocate it into loans that match a fixed set of rules they declare at vault creation. Depositors put in a base asset (USDC at launch) and receive vault tokens representing their share.
-
-A borrower can either open a new loan, or **refinance an existing position** from another lending protocol (Aave, Euler, or similar). Refinancing is a core feature, designed for borrowers who want to swap a variable-rate, liquidatable position for a fixed-rate, fixed-term one with no liquidations.
-
-## What v1 includes
-
-* Fixed-term loans against BTC and ETH, up to 50% LTV.
-* Both fixed-rate and auction-based rate setting.
-* Loan tokenisation and OTC secondary market for loan tokens.
-* Vaults, both private (at launch) and public (Stage 2, see [Creating a vault](../vaults/creating-a-vault.md)).
-* Vault token AMM for instant secondary exit.
-* Refinancing of existing positions from Aave, Euler, and similar protocols.
-* DEX-based collateral sale on default.
-
-Coupon loans, maturity rollover, structured leverage, a native token, and additional collateral assets are planned for later. See the [Roadmap](../roadmap/mvp-scope.md).
+Continue with [contract roles](../architecture/contracts.md) or [loan creation](../loans/loan-creation.md).

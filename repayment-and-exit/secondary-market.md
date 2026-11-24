@@ -1,31 +1,19 @@
 ---
-description: Liquidity comes from the market, not from the protocol.
-icon: arrows-left-right
+description: How ERC-20 receipt transfers change refund and settlement ownership.
 ---
 
-# Secondary market and arbitrage
+# Transferring claims
 
-**Liquidity comes from the market, not from the protocol.** When the system is under stress, vault and loan tokens trade at a discount. That creates arbitrage opportunities, which attract capital and pull prices back toward fair value.
+LoanToken is a transferable ERC-20 claim on one loan. A holder can transfer a receipt balance directly or authorize a spender using the token's allowance methods. The receiving address holds the corresponding refund or final payout rights.
 
-{% hint style="info" %}
-Arbitrage and market-making are **not enforced or subsidised** at the protocol level. The system is compatible with independent arbitrageurs, external market makers, and managers reallocating capital between vault generations.
+## Claim ownership
 
-Over time, the protocol may work with liquidity providers, support market-making, or add incentives if needed.
-{% endhint %}
+Before acceptance, the current holder can refund while the order is Lending or Canceled. After acceptance, the holder participates in the actual lender pool once settlement is complete. Withdrawals use the holder's balance at execution.
 
-## Clean and dirty pricing for loan tokens
+A transfer changes receipt ownership while the loan's borrower, terms, maturity, and accounting remain the same. Any price paid for the transfer is separate from the loan's principal and repayment calculation.
 
-When a loan token trades on the secondary market, the price the buyer pays is what bond markets call the **dirty price**. It splits into:
+## Reading a transferred claim
 
-* **Clean price.** What the loan is worth right now if you ignore accrued interest. The discounted value of the remaining payment at whatever yield the market is currently demanding.
-* **Accrued interest.** The share of the loan's total interest that has built up from the loan's start date until the trade date, at the loan's issuance yield.
+The relevant on-chain data is the loan's asset pair and terms, acceptance timestamp, current state, repayment target, and final shortfall when settled. The token's balance and current total supply determine a holder's share.
 
-$$
-dirty\_price = clean\_price + accrued\_interest
-$$
-
-The buyer pays the dirty price; the seller receives it.
-
-{% hint style="info" %}
-This split is a way to **think about pricing and report it**. On-chain, only the total transfer amount is recorded.
-{% endhint %}
+A receipt represents its share of the supplied payout pool. Residual borrower collateral and supplied surplus are allocated separately during [settlement](../loans/how-loans-end.md).

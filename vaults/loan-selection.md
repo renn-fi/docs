@@ -1,25 +1,26 @@
 ---
-description: Automated allocation across all matching vaults, pro-rata.
-icon: filter
+description: Checks enforced before executor-selected funding enters a loan.
 ---
 
-# How vaults pick loans
+# How vaults fund loans
 
-A vault funds loans automatically against the [rules its manager set at creation](vault-rules.md). The selection is fully automated; the manager does not pick individual loans.
+The executor selects a loan and funding amount. Vault validates eligibility in the funding transaction using current contract state.
 
-## Pro-rata allocation across matching vaults
+## Validation sequence
 
-When a loan matches the rules of **several vaults at once**, capital is allocated across them **pro-rata, not first-come-first-served**.
+1. Verify that the caller is EXECUTOR, the vault is active, and the amount is positive.
+2. Check the proposed address in the pinned LoanFactory's `isLoan` registry before calling that loan.
+3. Read the loan terms and require that its supplied token equals ASSET.
+4. Require permitted collateral, a rate at least `minRate`, and a term within the inclusive configured range.
+5. Require sufficient idle cash.
+6. Approve the loan for the selected amount, call its lending operation, and clear the allowance.
 
-{% hint style="info" %}
-This keeps vaults diversified and prevents any single vault from concentrating the most attractive loans.
-{% endhint %}
+LoanV2 enforces its current Lending state, remaining order capacity, and exact receipt of funding. Receipts are minted to the vault.
 
-## One-click loan creation
+## Repeated and partial funding
 
-Because vault rules are **public on-chain**, interfaces can:
+The executor may fund part of an order and add more while it remains eligible. Every transaction checks the then-current owner criteria and loan state. A stale off-chain selection therefore cannot bypass a newly changed rule.
 
-* Show borrowers **which vaults would match** a loan request.
-* Suggest the **parameters (rate, term, size)** that would secure an instant match for the amount they want.
+The maximum usable amount is constrained by free cash and the loan's remaining funding capacity. Actual accepted principal is established later by the borrower.
 
-This allows one-click loan creation for borrowers, with funding already routed to matching vaults at the moment of activation.
+See [funding and acceptance](../loans/funding.md) for the loan side and [withdrawing and collecting](exiting-a-vault.md) for recovery.
