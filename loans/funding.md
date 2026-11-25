@@ -8,7 +8,7 @@ description: Direct and vault funding, refunds, cancellation, and borrower accep
 
 During Lending, a lender approves LoanV2 for the supplied asset and calls `lend` with a positive amount within the remaining funding capacity. LoanV2 records the funding in `vaultLending`, mints the same raw amount of LoanToken to the caller, and verifies exact receipt of the supplied asset.
 
-Several lenders can fund one order, and the same lender can add funding repeatedly. A personal vault follows this same loan entry point through its executor-controlled funding operation.
+Several lenders can fund one order, and the same lender can add funding repeatedly. A private vault follows this same loan entry point through its executor-controlled funding operation.
 
 ## Refunds and cancellation
 

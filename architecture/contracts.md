@@ -26,7 +26,7 @@ description: Responsibilities of the loan, hedging, vault, and infrastructure co
 
 ## Vault layer
 
-**VaultFactory** deploys personal vaults owned by their creators and registers them in `isVault`.
+**VaultFactory** deploys private vaults owned by their creators and registers them in `isVault`.
 
 **Vault** holds one owner's supplied asset and LoanToken receipts. Its immutable executor funds registered loans that satisfy the owner's current criteria. The owner and executor can refund or collect existing claims.
 

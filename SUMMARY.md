@@ -1,9 +1,17 @@
 # Table of contents
 
-* [Renn Finance](README.md)
+* [Welcome](README.md)
+
+## Product
+
+* [How a loan works](product/how-a-loan-works.md)
+* [Where risk goes](product/where-risk-goes.md)
+* [Examples](product/examples.md)
+* [What's next](product/whats-next.md)
 
 ## Overview
 
+* [Technical reference](technical-reference.md)
 * [Protocol overview](overview/introduction.md)
 * [Core principles](overview/core-principles.md)
 
@@ -28,9 +36,9 @@
 * [Hedging positions](hedging/positions.md)
 * [Opening and recovery](hedging/opening-and-recovery.md)
 
-## Personal vaults
+## Private vaults
 
-* [Personal vaults](vaults/introduction.md)
+* [Private vaults](vaults/introduction.md)
 * [Creating a vault](vaults/creating-a-vault.md)
 * [Funding criteria and controls](vaults/vault-rules.md)
 * [How vaults fund loans](vaults/loan-selection.md)

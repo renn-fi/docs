@@ -2,7 +2,7 @@
 description: Owner-controlled cash accounts with delegated lending and on-chain funding criteria.
 ---
 
-# Personal vaults
+# Private vaults
 
 A Vault holds one owner's cash in a single ERC-20 ASSET and retains receipts for the loans it funds. A designated executor chooses funding amounts and submits lending transactions. The vault enforces the owner's criteria against each proposed loan's on-chain terms.
 

@@ -26,6 +26,6 @@ The loan accounts for supplied repayments and measured recovery. Lenders receive
 
 ## Authority follows contract roles
 
-Factory owners control token admission and future provider selection. Personal vault owners control cash and funding criteria. Executors select eligible loans and funding amounts. Recorded providers and positions enforce their respective caller permissions throughout the lifecycle.
+Factory owners control token admission and future provider selection. Private vault owners control cash and funding criteria. Executors select eligible loans and funding amounts. Recorded providers and positions enforce their respective caller permissions throughout the lifecycle.
 
 See [custody and permissions](../architecture/custody-and-permissions.md) for the contract boundaries.

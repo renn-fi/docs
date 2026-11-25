@@ -1,28 +1,19 @@
 ---
-description: Technical reference for Renn contracts, asset custody, and protocol flows.
+description: Fixed-term, fixed-rate loans with no liquidations during the term.
 ---
 
-# Renn Finance
+# Welcome
 
-Renn is a collateralized lending protocol built around individual fixed-term loans. Borrowers escrow collateral and propose a full-term repayment rate. Lenders fund orders directly or through personal vaults. Borrower acceptance opens the selected hedging position and releases the funded principal.
+Renn is a lending protocol for crypto and tokenized real-world assets. Borrowers take loans for a fixed term at a fixed rate. Lenders fund these loans and earn interest.
 
-These pages describe the current LoanV2, Hedging, and personal Vault implementation. Asset support, execution markets, and the selected hedging provider are determined by each deployment's configuration.
+Its first product is a loan against collateral with no liquidations during the term. The lender is protected by a put option. The borrower can take a lower rate in exchange for a cap on the collateral's gains. Lenders fund these loans through a public tokenized vault or a private one.
 
-## Explore the protocol
+**What the v0.1 private beta includes**
 
-* [Protocol overview](overview/introduction.md) follows a loan from collateral deposit to final withdrawals.
-* [Contract roles](architecture/contracts.md) explains the factories, loans, receipts, hedging positions, and infrastructure.
-* [Custody and permissions](architecture/custody-and-permissions.md) identifies who controls each operation and where assets reside.
-* [Loans](loans/loan-creation.md) covers terms, funding, acceptance, interest, and settlement.
-* [Hedging](hedging/positions.md) explains protective PUTs, covered collars, and recovery.
-* [Personal vaults](vaults/introduction.md) covers owner cash, executor funding, and collection.
-* [Infrastructure](infrastructure/pricing-and-execution.md) describes price sources, swap execution, and configuration.
-* [Events and integration](operations/events-and-integration.md) describes discovery, state reads, and transaction preparation.
-
-## Terms and units
-
-The **collateral** is the ERC-20 asset pledged by the borrower. The **supplied asset**, also called consideration, is the ERC-20 asset lent to the borrower and distributed to receipt holders. **Principal** is the funding actually accepted. **Maturity** is acceptance time plus the loan term.
-
-A loan's **rate** is its full-term repayment multiplier, scaled by `1e18`. A value of `1.1e18` means principal plus 10% interest over the entire term. Interest accrues linearly until repayment or maturity.
-
-Token amounts and oracle quotes use native token units. LoanToken receipt amounts equal the raw supplied units deposited. Option strikes and collar cap prices use 18-decimal fixed point. Times use Unix timestamps and durations in seconds.
+- The borrower posts an order with the collateral, amount, term and rate.
+- Fixed-term, fixed-rate loans against ERC-20 collateral.
+- Every loan is hedged with a put at the price that covers the loan plus the interest for the term. The borrower can also sell a call at a price above the current one, to cap the collateral's gains and get a lower rate.
+- Repayment in full, at maturity or earlier. If the loan is not repaid, it is settled from the collateral and the put.
+- The lender's claim is a transferable loan token.
+- Private vaults. The lender deposits once, and the vault funds every loan that matches its parameters.
+- Public tokenized vaults with secondary liquidity are coming soon.

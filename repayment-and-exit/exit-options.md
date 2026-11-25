@@ -18,8 +18,8 @@ At maturity, the loan can settle through its pinned provider. After allocation c
 
 Receipts remain transferable through their ERC-20 methods. Transferring a claim passes its refund or settlement rights to the recipient. See [transferring claims](secondary-market.md).
 
-## Personal vault cash
+## Private vault cash
 
 A vault owner can withdraw idle ASSET held by the vault. Funding in an unaccepted loan returns through Vault's refund operation, and a settled claim returns through collection. Both return cash to the vault before an owner withdrawal.
 
-See [withdrawing and collecting](../vaults/exiting-a-vault.md) for the personal vault cycle.
+See [withdrawing and collecting](../vaults/exiting-a-vault.md) for the private vault cycle.

@@ -13,7 +13,7 @@ description: Token admission, markets, oracle registration, onboarding, and prov
 | Directional execution market and pool fee | Current LoanFactory owner, on the provider | Quotes and new positions |
 | Pair oracle registration | PairPriceOracle owner | Both quote directions for that fixed pair source |
 | Prop tokens, taker admission, and pricer listings | Prop owner, with maker account approvals | Option quoting and trading |
-| Personal vault funding criteria | Vault owner | New funding from that vault |
+| Private vault funding criteria | Vault owner | New funding from that vault |
 
 LoanFactory, PairPriceOracle, and Vault each use their own ownership state.
 
