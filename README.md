@@ -6,7 +6,7 @@ description: Fixed-term, fixed-rate loans with no liquidations during the term.
 
 Renn is a lending protocol for crypto and tokenized real-world assets. Borrowers take loans for a fixed term at a fixed rate. Lenders fund these loans and earn interest.
 
-Its first product is a loan against collateral with no liquidations during the term. The lender is protected by a put option. The borrower can take a lower rate in exchange for a cap on the collateral's gains. Lenders fund these loans through a public tokenized vault or a private one.
+Its first product is a loan against collateral with no liquidations during the term. The lender is protected by a put option. The borrower can take a lower rate in exchange for a cap on the collateral's gains.
 
 **What the v0.1 private beta includes**
 
